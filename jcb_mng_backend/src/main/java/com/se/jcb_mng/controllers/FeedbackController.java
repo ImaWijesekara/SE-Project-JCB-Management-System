@@ -3,6 +3,7 @@ package com.se.jcb_mng.controllers;
 import com.se.jcb_mng.entities.Feedback;
 import com.se.jcb_mng.services.FeedbackService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class FeedbackController {
     }
 
     @PostMapping("/submit")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> submitFeedback(
             @RequestParam Long userId,
             @RequestParam String message,
@@ -31,11 +33,13 @@ public class FeedbackController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')") // Only Admins can see all feedback
     public ResponseEntity<List<Feedback>> getAllFeedback() {
         return ResponseEntity.ok(feedbackService.getAllFeedback());
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')") // Admins or Customers can view user-specific feedback
     public ResponseEntity<List<Feedback>> getFeedbackByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(feedbackService.getFeedbackByUserId(userId));
     }
